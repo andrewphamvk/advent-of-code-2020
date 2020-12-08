@@ -23,10 +23,12 @@ namespace _7
                 InsertBags(split.Select(x => GetBag(x)).ToArray(), nodes);
             }
 
-            var bagsVisited = new HashSet<string>();
-            Dfs(nodes["shiny gold"], bagsVisited);
+            // var bagsVisited = new HashSet<string>();
+            // Dfs(nodes["shiny gold"], bagsVisited);
+            // Console.WriteLine(bagsVisited.Count - 1);
 
-            Console.WriteLine(bagsVisited.Count - 1);
+            var res2 = Dfs2(nodes["shiny gold"], 1); // This returns the answer + 1.
+            Console.WriteLine(res2);
         }
 
         static void Dfs(BagNode node, HashSet<string> bagsVisited)
@@ -37,6 +39,18 @@ namespace _7
                 bagsVisited.Add(child.bag.Name);
                 Dfs(child.bag, bagsVisited);
             }
+        }
+
+        static int Dfs2(BagNode node, int acc)
+        {
+            Console.WriteLine(node.Name);
+            int sum = acc;
+            foreach (var child in node.Downstream)
+            {
+                sum += Dfs2(child.bag, child.num * acc);
+            }
+
+            return sum;
         }
 
         static (int num, string bag) GetBag(string input)
@@ -55,13 +69,18 @@ namespace _7
         // So that we can search using A as the key and find B and C
         static void InsertBags((int num, string bag)[] bagInfos, Dictionary<string, BagNode> nodes)
         {
-            foreach (var bagInfo in bagInfos) if (!nodes.ContainsKey(bagInfo.bag)) nodes.Add(bagInfo.bag, new BagNode { Name = bagInfo.bag });
+            foreach (var bagInfo in bagInfos)
+            {
+                if (bagInfo.bag.Contains("no other")) return;
+                if (!nodes.ContainsKey(bagInfo.bag)) nodes.Add(bagInfo.bag, new BagNode { Name = bagInfo.bag });
+            }
 
             var mainBag = nodes[bagInfos[0].bag];
             for (int i = 1; i < bagInfos.Length; i++)
             {
-                var dependsOn = nodes[bagInfos[i].bag];
-                dependsOn.Upstream.Add((bagInfos[i].num, mainBag));
+                var otherBag = nodes[bagInfos[i].bag];
+                mainBag.Downstream.Add((bagInfos[i].num, otherBag));
+                otherBag.Upstream.Add((bagInfos[i].num, mainBag));
             }
         }
     }
@@ -69,6 +88,11 @@ namespace _7
     class BagNode
     {
         public string Name { get; set; } = "No name";
+
+        // The other bags that depend on this. I.e. if A depends on B. B.Upstream contains A.
         public List<(int num, BagNode bag)> Upstream { get; set; } = new List<(int, BagNode)>();
+
+        // The other bags that this depends on. I.e if A depends on B. A.Downstream contains B.
+        public List<(int num, BagNode bag)> Downstream { get; set; } = new List<(int, BagNode)>();
     }
 }
