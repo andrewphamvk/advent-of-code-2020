@@ -6,4 +6,10 @@
     <RootNamespace>_8</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>  
+  </ItemGroup>
+  
 </Project>
