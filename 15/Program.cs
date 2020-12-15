@@ -12,8 +12,6 @@ namespace _15
         {
             var input = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "input.txt"));
             var initNums = input.Split(",").Select(x => int.Parse(x)).ToArray();
-            var p1 = 0;
-            var p2 = 0;
 
             var mem = new Dictionary<int, List<int>>();
             for (int i = 0; i < initNums.Length; i++)
@@ -29,14 +27,13 @@ namespace _15
             int lastVal = initNums.Last();
             for (int i = initNums.Length; i < 30000000; i++)
             {
-                // System.Console.WriteLine(lastVal);
-                lastVal = GetLastAndAdd(mem, lastVal, i);
+                lastVal = AddNext(mem, lastVal, i);
             }
 
-            System.Console.WriteLine($"{lastVal} {p2}");
+            System.Console.WriteLine($"{lastVal}");
         }
 
-        static int GetLastAndAdd(Dictionary<int, List<int>> mem, int lastVal, int idxNum)
+        static int AddNext(Dictionary<int, List<int>> mem, int lastVal, int idx)
         {
             if (!mem.ContainsKey(lastVal))
             {
@@ -45,7 +42,7 @@ namespace _15
 
             if (mem[lastVal].Count < 2)
             {
-                mem[0].Add(idxNum);
+                mem[0].Add(idx);
                 return 0;
             }
 
@@ -54,7 +51,7 @@ namespace _15
             {
                 mem.Add(res, new List<int>());
             }
-            mem[res].Add(idxNum);
+            mem[res].Add(idx);
             return res;
         }
     }
