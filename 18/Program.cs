@@ -38,50 +38,58 @@ namespace _18
         {
             s = s.Replace(" ", string.Empty);
             int res = 0;
-            var stack = new Stack<object>();
+            var stack = new Stack<int>();
 
-            int operand = 0;
-            int sign = 1;
+            int curr = 0;
+            char lastOp = '+';
             for (int i = 0; i < s.Length; i++)
             {
                 if (char.IsDigit(s[i]))
                 {
-                    operand *= 10;
-                    operand += s[i] - '0';
+                    curr *= 10;
+                    curr += s[i] - '0';
                 }
-                else
+
+                if (!char.IsDigit(s[i]) || i == s.Length - 1)
                 {
-                    if (s[i] == '+')
+                    if (lastOp == '+')
                     {
-                        res += sign * operand;
-                        sign = 1;
-                        operand = 0;
+                        res += curr;
                     }
-                    else if (s[i] == '-')
+                    else if (lastOp == '-')
                     {
-                        res += sign * operand;
-                        sign = -1;
-                        operand = 0;
+                        res -= curr;
                     }
-                    else if (s[i] == '(')
+                    else if (lastOp == '*')
                     {
-                        stack.Push(res);
-                        stack.Push(sign);
+                        res *= curr;
+                    }
+                    else if (lastOp == '/')
+                    {
+                        res /= curr;
+                    }
+
+                    if (s[i] == '(')
+                    {
+                        stack.Push(curr);
+                        System.Console.WriteLine(curr);
+                        System.Console.WriteLine(s[i]);
                         res = 0;
-                        sign = 1;
                     }
                     else if (s[i] == ')')
                     {
-                        res += sign * operand;
-                        res *= (int)stack.Pop();
-                        res += (int)stack.Pop();
-                        operand = 0;
+                        res += stack.Pop();
+                    }
+                    else
+                    {
+                        lastOp = s[i];
+                        curr = 0;
                     }
                 }
             }
 
 
-            return res + (sign * operand);
+            return res;
         }
 
         static int EvaluateExpr(Stack<object> stack)
