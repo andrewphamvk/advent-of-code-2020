@@ -1,0 +1,26 @@
+8: 42 | 42 8
+11: 42 31 | 42 11 31
+
+42: 9 14 | 10 1
+31: 14 17 | 1 13
+
+42: babbb baabb bbaab bbabb bbbab bbbbb abbbb aabbb aaaab aaabb aaaba ababa bbbba aaaaa baaaa bbaaa
+31: bbaba bbbaa babab babaa babba baaba baaab ababb abaab abbab abaaa abbaa abbba aabab aabaa aabba
+
+BEFORE
+
+bbabbbbaabaabba = 42 42 31
+ababaaaaaabaaab = 42 42 31
+ababaaaaabbbaba = 42 42 31
+
+AFTER
+
+aaaaa bbaab aaaaa babaa = 42 42 42 31
+bbbbb bbaaa abbbb aaabb abaaa = 42 42 42 42 31
+baabb aaaab baaaa babba ababb = 42 42 42 31 31
+abbbb abbbb aaaab abbbb bbaaa ababb = 42 42 42 42 42 31
+babbb baabb bbbab bbbbb aabaa abaaa = 42 42 42 42 31 31
+bbbab abbbb aaaaa aaabb ababa aabab aabab = 42 42 42 42 42 31 31
+aaaab baabb aaaaa aabbb abbba aabba abaaa = 42 42 42 42 31 31 31
+aabbb bbaab bbaaa aaabb bbbab abaaa aabba aabba = 42 42 42 42 42 31 31 31
+aaabb bbbba aaaba ababa ababa bbaba aabba babab abaaa = 42 42 42 42 42 31 31 31 31
