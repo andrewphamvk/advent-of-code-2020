@@ -91,8 +91,6 @@ namespace _20
                 return true;
             }
 
-            //p2 = Math.Max(p2, idx);
-
             for (var i = 0; i < tiles.Count; i++)
             {
                 var tile = tiles[i];
@@ -100,26 +98,26 @@ namespace _20
                 {
                     used[i] = true;
                     curr[idx] = tile;
-                    // Try rotating
-                    for (var r = 0; r < 4; r++)
+
+                    for (int f = 0; f < 2; f++)
                     {
-                        for (var f = 0; f < 4; f++)
+                        for (int r = 0; r < 4; r++)
                         {
-                            if (f < 2) tile.FlipHorizontal();
-                            if (f >= 2) tile.FlipVertical();
+                            bool valid = true;
 
-                            if (idx % N != 0 && curr[idx - 1].Get(Dir.Right) != tile.Get(Dir.Left)) continue;
+                            if (idx % N != 0 && curr[idx - 1].Get(Dir.Right) != tile.Get(Dir.Left)) valid = false;
+                            if (idx > (N - 1) && curr[idx - N].Get(Dir.Bot) != tile.Get(Dir.Top)) valid = false;
+                            if (valid)
+                            {
+                                if (Backtrack(tiles, used, curr, idx + 1)) return true;
+                            }
 
-                            if (idx > (N - 1) && curr[idx - N].Get(Dir.Bot) != tile.Get(Dir.Top)) continue;
-
-
-                            if (Backtrack(tiles, used, curr, idx + 1)) return true;
+                            tile.Rotate();
                         }
-
-                        tile.Rotate();
+                        tile.FlipVertical();
                     }
 
-                    //tile.Rotate(0);
+
                     curr[idx] = null;
                     used[i] = false;
                 }
@@ -171,7 +169,12 @@ namespace _20
 
         private static string Reverse(string s)
         {
-            return new string(s.Reverse().ToArray());
+            if (!ReverseMap.ContainsKey(s))
+            {
+                ReverseMap.Add(s, new string(s.Reverse().ToArray()));
+            }
+
+            return ReverseMap[s];
         }
 
 
@@ -205,6 +208,8 @@ namespace _20
         {
             return borders[(int) dir];
         }
+
+        private static Dictionary<string, string> ReverseMap = new Dictionary<string, string>();
     }
 
     public enum Dir
