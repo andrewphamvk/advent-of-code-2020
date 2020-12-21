@@ -3,20 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace _20
 {
-    class Program
+    internal class Program
     {
-        private static int p1 = default;
-        private static int p2 = default;
+        private static long p1;
+        private static long p2;
 
-        static void Main(string[] args)
+        private static int N;
+
+        private static void Main(string[] args)
         {
-            var input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "input.txt"));
+            var input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "input.txt"));
 
             PartOne(input);
             PartTwo(input);
@@ -24,14 +26,14 @@ namespace _20
             Console.WriteLine($"{p1} {p2}");
         }
 
-        static void PartOne(string[] input)
+        private static void PartOne(string[] input)
         {
             var tiles = new List<Tile>();
-            for (int i = 0; i < input.Length; i++)
-            {
+            for (var i = 0; i < input.Length; i++)
+            {   
                 var tileLine = input[i++];
                 var match = Regex.Match(tileLine, @"Tile (?<Id>\d+):");
-                
+
                 var tile = new Tile();
                 tile.Id = int.Parse(match.Groups["Id"].Value);
                 var grid = new List<char[]>();
@@ -46,36 +48,28 @@ namespace _20
                 tiles.Add(tile);
             }
 
-            var tile0 = tiles[0];
-            Print(tile0.Grid);
-            tile0.Rotate(0);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(1);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(2);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(3);
-            Console.WriteLine(tile0.Get(Dir.Top));
+            //var tile0 = tiles[0];
+            //Print(tile0.Grid);
+            //tile0.Rotate();
+            //Console.WriteLine(tile0.Get(Dir.Top));
+            //tile0.Rotate();
+            //Console.WriteLine(tile0.Get(Dir.Top));
+            //tile0.Rotate();
+            //Console.WriteLine(tile0.Get(Dir.Top));
+            //tile0.Rotate();
+            //Console.WriteLine(tile0.Get(Dir.Top));
 
-            Console.WriteLine();
-            tile0.Flip(true);
+            //Console.WriteLine();
+            //tile0.Flip();
 
-            tile0.Rotate(0);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(1);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(2);
-            Console.WriteLine(tile0.Get(Dir.Top));
-            tile0.Rotate(3);
-            Console.WriteLine(tile0.Get(Dir.Top));
-
-            bool[] used = new bool[tiles.Count];
+            //Console.WriteLine(tile0.Get(Dir.Top));
+            N = (int)Math.Sqrt(tiles.Count);
+            var used = new bool[tiles.Count];
             var curr = new Tile[tiles.Count];
             Backtrack(tiles, used, curr, 0);
-
         }
 
-        static void Print(char[][] grid)
+        private static void Print(char[][] grid)
         {
             var sb = new StringBuilder();
             foreach (var g in grid)
@@ -88,16 +82,18 @@ namespace _20
             Console.WriteLine();
         }
 
-        static bool Backtrack(List<Tile> tiles, bool[] used, Tile[] curr, int idx) 
+        private static bool Backtrack(List<Tile> tiles, bool[] used, Tile[] curr, int idx)
         {
-            if (idx == tiles.Count) {
-                System.Console.WriteLine($"Found {curr[0].Id} {curr[11].Id} {curr[132].Id} {curr[143].Id}");
+            if (idx == tiles.Count)
+            {
+                Console.WriteLine($"Found {curr[0].Id} {curr[N - 1].Id} {curr[N * (N - 1)].Id} {curr[N * N - 1].Id}");
+                p1 = curr[0].Id * (long)curr[N - 1].Id * curr[N * (N - 1)].Id * curr[N * N - 1].Id;
                 return true;
             }
 
-            p2 = Math.Max(p2, idx);
+            //p2 = Math.Max(p2, idx);
 
-            for (int i = 0; i < tiles.Count; i++)
+            for (var i = 0; i < tiles.Count; i++)
             {
                 var tile = tiles[i];
                 if (!used[i])
@@ -105,112 +101,109 @@ namespace _20
                     used[i] = true;
                     curr[idx] = tile;
                     // Try rotating
-                    for (int r = 0; r < 4; r++)
+                    for (var r = 0; r < 4; r++)
                     {
-                        tile.Rotate(r);
-                        for (int f = 0; f < 2; f++)
+                        for (var f = 0; f < 4; f++)
                         {
-                            bool flip = f == 1;
-                            tile.Flip(flip);
+                            if (f < 2) tile.FlipHorizontal();
+                            if (f >= 2) tile.FlipVertical();
 
-                            if (idx % 12 != 0 && curr[idx - 1].Get(Dir.Right) != tile.Get(Dir.Left))
-                            {
-                                continue;
-                            }
+                            if (idx % N != 0 && curr[idx - 1].Get(Dir.Right) != tile.Get(Dir.Left)) continue;
 
-                            if (idx > 11 && curr[idx - 12].Get(Dir.Bot) != tile.Get(Dir.Top))
-                            {
-                                continue;
-                            }
+                            if (idx > (N - 1) && curr[idx - N].Get(Dir.Bot) != tile.Get(Dir.Top)) continue;
 
 
                             if (Backtrack(tiles, used, curr, idx + 1)) return true;
-
                         }
+
+                        tile.Rotate();
                     }
 
-                    tile.Rotate(0);
+                    //tile.Rotate(0);
+                    curr[idx] = null;
+                    used[i] = false;
                 }
-
-                curr[idx] = null;
-                used[i] = false;
             }
 
             return false;
         }
 
-        static void PartTwo(string[] input)
+        private static void PartTwo(string[] input)
         {
-
         }
     }
 
     public class Tile
     {
-        public int Id;
+        private readonly string[] borders = new string[4];
         public char[][] Grid;
-        private int Rotation = 0;
-        private bool flip = false;
-        private string[] borders = new string[4];
+        public int Id;
 
         public void Init()
         {
-            borders[(int)Dir.Top] = new String(this.Grid[0]);
-            borders[(int)Dir.Bot] = new String(this.Grid[^1]);
+            borders[(int) Dir.Top] = new string(Grid[0]);
+            borders[(int) Dir.Bot] = new string(Grid[^1]);
 
             var sbLeft = new StringBuilder();
             var sbRight = new StringBuilder();
-            foreach (var r in this.Grid)
+            foreach (var r in Grid)
             {
                 sbLeft.Append(r[0]);
                 sbRight.Append(r[^1]);
             }
 
-            borders[(int)Dir.Left] = sbLeft.ToString();
-            borders[(int)Dir.Right] = sbRight.ToString();
+            borders[(int) Dir.Left] = sbLeft.ToString();
+            borders[(int) Dir.Right] = sbRight.ToString();
         }
 
-        public void Rotate(int num)
+        public void Rotate()
         {
-            Rotation = num;
-            //Rotation = ((Rotation + 4) + num) % 4;
+            var newTop = Reverse(borders[(int) Dir.Left]);
+            var newRight = borders[(int) Dir.Top];
+            var newBot = Reverse(borders[(int) Dir.Right]);
+            var newLeft = borders[(int) Dir.Bot];
+
+            borders[(int) Dir.Top] = newTop;
+            borders[(int) Dir.Right] = newRight;
+            borders[(int) Dir.Bot] = newBot;
+            borders[(int) Dir.Left] = newLeft;
         }
 
-        public void Flip(bool flip)
+        private static string Reverse(string s)
         {
-            this.flip = flip;
+            return new string(s.Reverse().ToArray());
+        }
+
+
+        public void FlipHorizontal()
+        {
+            var newTop = borders[(int) Dir.Bot];
+            var newRight = Reverse(borders[(int) Dir.Right]);
+            var newBot = borders[(int) Dir.Top];
+            var newLeft = Reverse(borders[(int)Dir.Left]);
+
+            borders[(int) Dir.Top] = newTop;
+            borders[(int) Dir.Right] = newRight;
+            borders[(int) Dir.Bot] = newBot;
+            borders[(int) Dir.Left] = newLeft;
+        }
+
+        public void FlipVertical()
+        {
+            var newTop = Reverse(borders[(int)Dir.Top]);
+            var newRight = borders[(int)Dir.Left];
+            var newBot = Reverse(borders[(int)Dir.Bot]);
+            var newLeft = borders[(int)Dir.Right];
+
+            borders[(int)Dir.Top] = newTop;
+            borders[(int)Dir.Right] = newRight;
+            borders[(int)Dir.Bot] = newBot;
+            borders[(int)Dir.Left] = newLeft;
         }
 
         public string Get(Dir dir)
         {
-            int tempRotation = Rotation;
-            if (this.flip) tempRotation += 2;
-            int dirInt = (int)dir;
-            dirInt += tempRotation;
-
-            string res;
-            dirInt = dirInt % 4;
-
-            if (tempRotation == 1 && (dirInt == (int)Dir.Top || dirInt == (int)Dir.Bot))
-            {
-                res = new string(borders[dirInt].Reverse().ToArray());
-            }
-            else if (tempRotation == 2)
-            {
-                res = new string(borders[dirInt].Reverse().ToArray());
-            }
-            else if (tempRotation == 3 && (dirInt == (int)Dir.Left || dirInt == (int)Dir.Right))
-            {
-                res = new string(borders[dirInt].Reverse().ToArray());
-            }
-            else
-            {
-                res = borders[dirInt];
-            }
-
-            if (this.flip) res = new string(res.Reverse().ToArray());
-
-            return res;
+            return borders[(int) dir];
         }
     }
 
