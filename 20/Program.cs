@@ -48,21 +48,6 @@ namespace _20
                 tiles.Add(tile);
             }
 
-            //var tile0 = tiles[0];
-            //Print(tile0.Grid);
-            //tile0.Rotate();
-            //Console.WriteLine(tile0.Get(Dir.Top));
-            //tile0.Rotate();
-            //Console.WriteLine(tile0.Get(Dir.Top));
-            //tile0.Rotate();
-            //Console.WriteLine(tile0.Get(Dir.Top));
-            //tile0.Rotate();
-            //Console.WriteLine(tile0.Get(Dir.Top));
-
-            //Console.WriteLine();
-            //tile0.Flip();
-
-            //Console.WriteLine(tile0.Get(Dir.Top));
             N = (int)Math.Sqrt(tiles.Count);
             var used = new bool[tiles.Count];
             var curr = new Tile[tiles.Count];
